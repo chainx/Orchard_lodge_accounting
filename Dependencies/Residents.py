@@ -8,7 +8,7 @@ def error(payment1,payment2): #Used for lining up payments
 
 
 class resident:
-    def __init__(self,name,title,filters=[]): #GOAL: Add functionality to read from database
+    def __init__(self,name,title,filters=[]): 
         self.name = name
         self.title = title
 
