@@ -118,10 +118,7 @@ for payment in residents[-1].payments: print(payment) #Print cheque payments
 residents = {resident.name : resident for resident in residents} #Store the resident instances in a dictionary for easy access, must be done after sorting
 
 
-if __name__ == "__main__":
-
-    residents['Joan Baskeyfield'].line_up_debts_and_payments()
-    residents['Joan Baskeyfield'].total_owed()  
+if __name__ == "__main__": 
 
 ##    file = open('Residents.pkl','wb')
 ##    pickle.dump(residents, file)
