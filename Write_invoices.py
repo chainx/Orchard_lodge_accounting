@@ -73,17 +73,13 @@ for file in glob.glob('Remittance advice/'+year+'/*.csv'):
 #==============================================================================================================================================================================
 
 
-info=read_sefton_file(statement) #Read Sefton's retarded csv file        
+info=read_sefton_file(statement) #Read Sefton's csv file        
 payments=combine_payments(info) #Collect payments for each resident for invoicing
 
-payment_date = payments[len(payments)-1][1][0][1] #Phillip Wycherly is last and never has anomalies so is useful for getting the date
+payment_date = payments[len(payments)-1][1][0][1] #P. W is last and never has anomalies so is useful for getting the date
 
 #Private residents
-payments.append( ['Mrs Barbara Kelleher', [['2200', payment_date, '']], '2200'] )
-payments.append( ['Mrs Everlyn Bailey', [['2160', payment_date, '']], '2160'] )
-payments.append( ['Mrs Eleanor Cronin', [['2200', payment_date, '']], '2200'] )
-payments.append( ['Mrs Veronica Curley', [['2200', payment_date, '']], '2200'] )
-payments.append( ['Mr Ronald Taylor', [['2200', payment_date, '']], '2200'] )
+
 
 
 for resident in payments:
