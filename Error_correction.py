@@ -1,35 +1,32 @@
-from Basic_functions import *
-from Reading import read_invoice
-import Verify_payments
+from Dependencies import *
 
-def verify_jeanettes_accounting(year,payments,check_bank=True,check_entries=True):
+def confirm_payments(year,payments): #Check payments in bank match amounts given by Jeanette
     df = pandas.read_excel('Paying in sheets/Cash and cheques '+str(year)+'.xlsx')
 
-    #Part 1: check payments in bank match amounts given by Jeanette
-    if check_bank==True:
-        print('The following is a list of payments in the cash and cheques sheet compared with payments into RBS and Santander:','\n'*3) 
-        unaccounted_for = payments['Cash + Cheques'][:]
-        error_margin = 50 #20 is an arbitrary number
-        for i in df.index:
-            if df['Bank'][i]=='Total':
-                date = "/".join(str(df['Date'][i-1]).split(' ')[0].split('-')[::-1])
-                total = df['Resident'][i]
-                jeanette_payment = [date,'',total]
+    print('The following is a list of payments in the cash and cheques sheet compared with payments into RBS and Santander:','\n'*3) 
+    unaccounted_for = payments['Cash + Cheques'][:]
+    error_margin = 50 #20 is an arbitrary number
+    
+    for i in df.index:
+        if df['Bank'][i]=='Total':
+            date = "/".join(str(df['Date'][i-1]).split(' ')[0].split('-')[::-1])
+            total = df['Resident'][i]
+            jeanette_payment = [date,'',total]
 
-                if total>0: #Some of the payments were paid out to staff so won't be found in the bank statements
-                    payment = min(unaccounted_for, key=lambda x: error(x,jeanette_payment) )
-                    if error(payment,jeanette_payment)<error_margin:
-                         print([date,total], ' '*(30-len(str(jeanette_payment))), payment)
-                         unaccounted_for.remove(payment) #Remove payment from unaccounted for list if its sufficiently close to one of Jeanette's payments
-                    else:
-                        print('\nThere is no corresponding bank payment for the following payment:',jeanette_payment,'\n')
+            if total>0: #Some of the payments were paid out to staff so won't be found in the bank statements
+                payment = min(unaccounted_for, key=lambda x: error(x,jeanette_payment) )
+                if error(payment,jeanette_payment)<error_margin:
+                     print([date,total], ' '*(30-len(str(jeanette_payment))), payment)
+                     unaccounted_for.remove(payment) #Remove payment from unaccounted for list if its sufficiently close to one of Jeanette's payments
+                else:
+                    print('\nThere is no corresponding bank payment for the following payment:',jeanette_payment,'\n')
 
-        print('\n'*4,'The following payments are unaccounted for:\n')
-        for payment in [payment for payment in unaccounted_for if datetime(year,1,1) < datetime.strptime(payment[0], "%d/%m/%Y") < datetime(year+1,1,1)]: print(payment)
+    print('\n'*4,'The following payments are unaccounted for:\n')
+    for payment in [payment for payment in unaccounted_for if datetime(year,1,1) < datetime.strptime(payment[0], "%d/%m/%Y") < datetime(year+1,1,1)]: print(payment)
 
-    #Part 2: Check invoice numbers and payment amounts match those given by Jeanette
-    if check_entries==True:
-        if check_bank==True: print('\n'*5)
+def verify_data_integrity(year): #Check invoice numbers and payment amounts match those given by Jeanette
+        df = pandas.read_excel('Paying in sheets/Cash and cheques '+str(year)+'.xlsx')
+
         print('Here are the payments in the cash and checks sheet which contain errors:','\n'*2)
         for i in df.index:
             if df['Bank'][i]=='Santander' or df['Bank'][i]=='RBS':
@@ -44,7 +41,7 @@ def verify_jeanettes_accounting(year,payments,check_bank=True,check_entries=True
                         print('Corresponding invoice =', invoice,'\n')
 
 
-def line_up_dates(resident,verbose=False):
+def line_up_dates(resident,verbose=False): #Check for invoices that have overlapping dates
     dates_by_filename={}
     for filename in find_invoices(resident):
         if 'OBSOLETE' not in filename:
@@ -76,7 +73,7 @@ def line_up_dates(resident,verbose=False):
 
 if __name__ == "__main__":
 
-    name = 'Eleanor Cronin'
+    name = '' #REDACTED
     resident = Verify_payments.residents[name]
     resident.debts = [debt for debt in resident.debts if datetime.strptime(debt[0],'%d/%m/%Y')>datetime(2019,12,1)]
 
