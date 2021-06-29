@@ -1,5 +1,4 @@
-from Basic_functions import *
-from Reading import read_bank_statement, read_data
+from Dependencies import *
 
 def line_up_statements(data,new_data):
     join_point=0 #data[:join_point-1] represents the the earlier payments in new_data
