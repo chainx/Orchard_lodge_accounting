@@ -1,4 +1,4 @@
-from Basic_functions import *
+from Dependencies import *
 
 def combine_payments(info):
     payments=[]
