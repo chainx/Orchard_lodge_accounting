@@ -42,18 +42,23 @@ def read_bank_statement(filename,san_or_rbs):
     return new_data
 
 def read_sefton_file(filename):
-    conversion=[61,28,53,13,19] #[57,25,49,13,18] before invoice batch 12 of 2018
     data=[]
     with open(filename, 'rt') as file:
         reader = csv.reader(file, quotechar='"',delimiter=',',quoting=csv.QUOTE_ALL,skipinitialspace=True)
         for row in reader: data.append(row)
     file.close()
     
-    print(data[1][56]+'\n') #Print remittance note on the sefton file (usually there isn't one, but see April 2018 for example)
-    true_data=[]
-    for n in range(len(data)):
-        if data[n][conversion[4]]=='Income': true_data.append([data[n][conversion[0]],data[n][conversion[1]],data[n][conversion[2]],data[n][conversion[3]]])
-    return true_data
+    if data[1][56] != 'Total for Orchard Lodge Care Home':
+        print(data[1][56]+'\n') #Print remittance note on the sefton file (usually there isn't one, but see April 2018 for example)
+
+    debt_period = data[1][1].split('for the Payment Period from ')[1]
+
+    debts=[]
+    conversion=[61,28,53,13,19] #[57,25,49,13,18] before invoice batch 12 of 2018
+    for debt in data:
+        if debt[conversion[4]]=='Income':
+            debts.append([debt[conversion[0]],  "{:.2f}".format(-float(debt[conversion[1]])),  debt[conversion[2]],debt[conversion[3]]])
+    return debts,debt_period
 
 def read_data(filename):
     data=[]
@@ -86,4 +91,3 @@ def read_invoice(filename):
         
     debt.insert(2,float(value))
     return debt
-
