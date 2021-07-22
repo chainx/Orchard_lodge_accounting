@@ -9,7 +9,7 @@ def order_debts(debts):
 
     for res in residents: #Calculate invoice total
         for debt in residents[res].debts:
-            residents[res].invoice_total+=float(debt[0])
+            residents[res].invoice_total+=float(debt[0]) #debt[0] is no longer residents name due to earlier cut
         residents[res].invoice_total = "{:.2f}".format(residents[res].invoice_total)
         
     return residents
@@ -41,7 +41,7 @@ def write_inovices(residents,date,year,file_number):
             count+=1
 
         for paragraph in document.tables[0].cell(1,1).paragraphs:
-            if paragraph.text.count('TOTAL')==1: paragraph.text=paragraph.text.replace('TOTAL',res.invoice_total)
+            if paragraph.text.count('TOTAL')==1: paragraph.text=paragraph.text.replace('TOTAL',residents[res].invoice_total)
 
         document.save(path+'Invoices/'+year+'/'+str(file_number)+'. '+date+'/'+invoice_number+' - '+res+'.docx')
         invoice_number = "%05d" % (int(invoice_number)+1,)
@@ -54,6 +54,8 @@ def write_inovices(residents,date,year,file_number):
 #==============================================================================================================================================================================
 
 path = '/media/mike/E8/Orchard lodge accounting/'
+downloads_path = '/home/mike/Downloads/'
+
 
 if __name__ == "__main__":
 
@@ -62,13 +64,26 @@ if __name__ == "__main__":
     year = now.strftime("%Y")
     date = now.strftime("%d %B %Y")
 
-    if 'report_export.csv' in os.listdir('/home/mike/Downloads'):
 
-        (debts,debt_date) = read_sefton_file("/home/mike/Downloads/report_export.csv")
-
+    #This chunk of code is for finding and reading the Sefton csv file
+    move_files = False 
+    if 'report_export.csv' in os.listdir(downloads_path):
+        
+        (debts,debt_date) = read_sefton_file(downloads_path+'report_export.csv')
+        
         dates = [datetime.strptime(date,'%d/%m/%Y').strftime('%d %B') for date in debt_date.split(' to ')]
-        file_number = int(len(os.listdir(path+"Remittance advice/"+year))/2) + 1
-        filename = str(file_number) + '. ' + dates[0] + ' - ' + dates[1]
+        file_number = str( int(len(os.listdir(path+"Remittance advice/"+year))/2) + 1)
+        filename = file_number + '. ' + dates[0] + ' - ' + dates[1]
+        move_files = True
+        
+    else:
+        filename = os.listdir(path+'Remittance advice/'+year)[-2]
+        file_number = filename.split('.')[0]
+        
+        (debts,debt_date) = read_sefton_file(path+'Remittance advice/'+year+'/'+filename)
+
+
+
 
 
     #Private residents
@@ -92,9 +107,10 @@ if __name__ == "__main__":
     #Checking before proceding to write invoices
     safety_check=input('Do you want to continue? (y/n)  ')
     if safety_check=='y':
-        os.makedirs(path+'Invoices/'+year+'/'+str(file_number)+'. '+date) #Create new folder
-        write_inovices(debts,date,year,file_number)                       #Write invoices
-        shutil.move("/home/mike/Downloads/report_export.csv", path+'Remittance advice/'+year+'/'+filename+'.csv')
-        shutil.move("/home/mike/Downloads/ActiveReports.PDF", path+'Remittance advice/'+year+'/'+filename+'.PDF')
+        os.makedirs(path+'Invoices/'+year+'/'+file_number+'. '+date) #Create new folder
+        write_inovices(residents,date,year,file_number)                       #Write invoices
+        if move_files:
+            shutil.move(downloads_path+'report_export.csv', path+'Remittance advice/'+year+'/'+filename+'.csv')
+            shutil.move(downloads_path+'ActiveReports.PDF', path+'Remittance advice/'+year+'/'+filename+'.PDF')
         
     else: print('\n'*3+'Invoice writing aborted!')
