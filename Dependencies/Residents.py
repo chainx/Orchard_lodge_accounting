@@ -8,7 +8,7 @@ def error(payment1,payment2): #Used for lining up payments
 
 
 class resident:
-    def __init__(self,name,title,filters=[]): 
+    def __init__(self,name,title,filters=[]): #GOAL: Add functionality to read from database
         self.name = name
         self.title = title
 
@@ -16,6 +16,8 @@ class resident:
 
         self.debts = []
         self.payments = []
+
+        self.invoice_total=0
 
     def print_debts(self):
         for debt in self.debts: print(debt)
@@ -28,6 +30,7 @@ class resident:
         for debt in self.debts: total+=float(debt[2])
         for payment in self.payments: total-=float(payment[2])
         print("{:.2f}".format(total))
+        return "{:.2f}".format(total)
 
     def order_debts_and_payments(self):
         self.debts = sorted(self.debts, key = lambda x: datetime.strptime(x[0],'%d/%m/%Y'))
