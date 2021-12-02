@@ -2,7 +2,7 @@ from Dependencies import *
 
 def line_up_statements(data,new_data):
     join_point=0 #data[:join_point-1] represents the the earlier payments in new_data
-    while new_data[join_point] in data or join_point==len(new_data): join_point+=1
+    while new_data[join_point] not in data and join_point!=len(new_data): join_point+=1
 
     ammended_data = new_data[:join_point-1]+data #Earlier payments are further into the list
     manual_error_check(data,new_data,join_point,ammended_data)
